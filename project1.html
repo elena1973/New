@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My Task Board - Project 1</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+        integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link rel="stylesheet" href="project1.css">
+</head>
+
+<body>
+    <h1>To do list</h1>
+    <div id="formadd">
+        <input type="text" id="titleform" autofocus placeholder="Title" maxlength="15">
+        <br>
+        <textarea rows="3" id="noteform" style="resize: none" placeholder="Note">
+
+        </textarea>
+        <br>
+        <div id="dhc">
+            <div>
+                <label for="dateform">Date: <input type="date" name="" id="dateform" max="2222-12-31">
+                </label>
+            </div>
+            <div>
+                <label for="timeform">Time: <input type="time" name="" id="timeform">
+                </label>
+            </div>
+        </div>
+        <div id="divbuttons">
+            <button class="btn btn-primary" onclick="AddMemo()" title="Add task">Add</button>
+            <button class="btn btn-secondary" onclick="ClearForm()" title="clear the form">Clear</button>
+        </div>
+    </div>
+    <br>
+    <div id="paperboard">
+    </div>
+    <script>
+
+var memos = [];
+
+window.onload = function(){
+    var mdate = document.getElementById('dateform')
+    mdate.valueAsDate = new Date();
+    mdate.min = new Date().toISOString().split("T")[0];
+    if
+    (JSON.parse(localStorage.getItem("notes")) === null){return}
+    var strg_notes = localStorage.getItem("notes");
+    memos = JSON.parse(strg_notes);
+    for
+    (var i=memos.length-1;i>=0;i--){
+        UpdatePaper(i);
+    }
+}
+
+function AddMemo() {
+    if
+    (!VerifInfo()){return}
+    
+    var mtitle = document.getElementById("titleform").value;
+    var mnote = document.getElementById("noteform").value;
+    var mdate = document.getElementById("dateform").value;
+    var mtime = document.getElementById("timeform").value;
+    mnote = mnote.replace(/\n\r?/g, '<br/>');
+    var memo = `{"title":"${mtitle}", "note":"${mnote}", "date":"${mdate}", "time":"${mtime}"}`;
+    memos.unshift(JSON.parse(memo));
+    EnterLocalStr();
+    ClearForm();
+    UpdatePaper(0);
+}
+
+function EnterLocalStr(){
+    var arr_notes = JSON.stringify(memos);
+    localStorage.setItem("notes",arr_notes);
+}
+
+function UpdatePaper(indexmemos){
+    var paperboard = document.getElementById("paperboard")
+    var newpaper = document.createElement("div");
+    newpaper.className = "paperc";
+    newpaper.innerHTML = `<i class="far fa-times-circle fa-lg" onclick="DeletePaper(event)" title="Delete the task">
+    </i>
+                          <h5 class="titlepaper">${memos[indexmemos].title}
+                          </h5>
+                          <div class="notepaper">${memos[indexmemos].note}
+                          </div>
+                          <div class="datepaper">${memos[indexmemos].date.substring(8,10)}/${memos[indexmemos].date.substring(5,7)}/${memos[indexmemos].date.substring(0,4)}
+                          </div>
+                          <div class="timepaper">${memos[indexmemos].time}
+                          </div>`
+    paperboard.insertBefore(newpaper,paperboard.firstChild);
+}
+
+function ClearForm() {
+    var mtitle = document.getElementById("titleform");
+    mtitle.value="";
+    mtitle.focus();
+    document.getElementById("noteform").value = "";
+    var mdate = document.getElementById('dateform');
+    mdate.valueAsDate = new Date();
+    mdate.min = new Date().toISOString().split("T")[0];
+    document.getElementById("timeform").value = "";
+}
+
+function DeletePaper(e){
+    var index = Array.from(e.target.parentElement.parentElement.children).indexOf(e.target.parentElement);
+    e.target.parentElement.parentElement.removeChild(e.target.parentElement);
+    memos.splice(index,1);
+    EnterLocalStr();
+}
+
+function VerifInfo() {
+    var mtitle = document.getElementById("titleform").value;
+    if
+     (mtitle === "" && mnote === "") {
+        bufferverif += "The task is empty";
+    }
+
+    var mnote = document.getElementById("noteform").value;
+
+    var mdate = document.getElementById("dateform").value;
+    if 
+    (mdate === "") {
+        AddAnd();
+        bufferverif += "the date is incorrect";
+    }
+
+    var mtime = document.getElementById("timeform").value;
+
+    var bufferverif = "";
+  
+   
+    var datetime = "";
+    if
+     (mtime !== "") {
+        datetime = "T" + mtime + ":59";
+    }
+    else
+     {
+        datetime = "T23:59:59";
+    }
+    if 
+    (new Date(mdate + datetime) < new Date()) {
+        AddAnd();
+        bufferverif += "the date has passed";
+    }
+    if 
+    (bufferverif !== "") {
+        alert("ERROR: "+bufferverif);
+        return 0
+    }
+    return 1
+    function AddAnd() {
+        if
+         (bufferverif !== "") {
+            bufferverif += " and ";
+        }
+    }
+}
+    </script>
+</body>
+
+</html>
